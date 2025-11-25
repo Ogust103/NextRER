@@ -1,0 +1,39 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prochains RER</title>
+    <script>
+        function fetchNextRers() {
+            fetch('/api/next_rers')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('rer-list');
+                    list.innerHTML = data.map(rer =>
+                        `<div>
+                            <strong>${rer.vehicleJourneyName}</strong> vers ${rer.destinationName}<br>
+                            Arrivée prévue : ${rer.expectedArrivalTime}<br>
+                            Départ prévu : ${rer.expectedDepartureTime}
+                        </div>`
+                    ).join("");
+                });
+        }
+
+        setInterval(fetchNextRers, 3000); // Met à jour toutes les minutes
+        window.onload = fetchNextRers;
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <img src="{{ url_for('static', filename='Logo RERA.png') }}" alt="Logo RER A">
+        <h1>Direction Paris</h1>
+    </div>
+    <div class="redline"></div>
+
+    <div id="rer-list">
+        <!-- Les prochains RER seront insérés ici par JavaScript -->
+    </div>
+    <!-- <button class="button">Clique-moi</button> -->
+</body>
+</html>

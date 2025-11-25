@@ -1,0 +1,40 @@
+/* static/style.css */
+body {
+    font-family: 'Trebuchet MS';
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+}
+
+.header
+
+h1 {
+    color: #352A94;
+    margin-left: 30px;
+    font-size: 80px;
+}
+
+.redline {
+    width: 100%;
+    height: 4px;
+    background-color: red;
+}
+
+.button {
+    background-color: #0078d7;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #005a9e;
+}
