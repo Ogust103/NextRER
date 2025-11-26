@@ -4,36 +4,117 @@
 <head>
     <title>Prochains RER</title>
     <script>
+        let nextRersData = []; // Variable globale pour stocker les données
+        let requestInterval = 10000;
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Fonction pour formater le temps restant en "X min Y sec"
+        function formatTimeRemaining(departureTime) {
+            const now = new Date();
+            const departure = new Date(departureTime);
+            const diffMs = Math.max(0, departure - now);
+            const diffMinutes = Math.floor(diffMs / 60000);
+            const diffSeconds = Math.floor((diffMs % 60000) / 1000);
+            return `${diffMinutes}:${diffSeconds}`;
+        }
+
+        // Fonction pour mettre à jour l'affichage du temps restant
+        function updateTimeRemaining() {
+            const now = new Date();
+            const list = document.getElementById('rer-list');
+            firstRer = nextRersData[0];
+            // console.log(firstRer.vehicleJourneyName, "Arrival :", firstRer.expectedArrivalTime, now.toISOString(), firstRer.expectedArrivalTime > now.toISOString());
+            // console.log(firstRer.vehicleJourneyName, "Departure :", firstRer.expectedDepartureTime, now.toISOString(), firstRer.expectedDepartureTime > now.toISOString());
+            
+            list.innerHTML = nextRersData.map((rer) => {
+                if (rer.expectedArrivalTime > now.toISOString()) {
+                    return `
+                        <div class="cell">
+                            <div class="name-rectangle">
+                                <span>${rer.vehicleJourneyName}</span>
+                            </div>
+                            <div class="time-rectangle">
+                                <span>${formatTimeRemaining(rer.expectedDepartureTime)}</span>
+                            </div>
+                        </div>
+                    `;
+                } else if (rer.expectedDepartureTime > now.toISOString()) {
+                    return `<div>
+                    <strong>${rer.vehicleJourneyName}</strong> vers ${rer.destinationName}<br>
+                    A quai<br>
+                </div>`;
+                }
+                else {
+                    return ""; // Ne rien afficher si le RER est déjà parti
+                }            
+            }).join("");
+        }
+
+        // Fonction pour récupérer les données de l'API
         function fetchNextRers() {
+            console.log("Fetching next RERs...");
             fetch('/api/next_rers')
                 .then(response => response.json())
                 .then(data => {
-                    const list = document.getElementById('rer-list');
-                    list.innerHTML = data.map(rer =>
-                        `<div>
-                            <strong>${rer.vehicleJourneyName}</strong> vers ${rer.destinationName}<br>
-                            Arrivée prévue : ${rer.expectedArrivalTime}<br>
-                            Départ prévu : ${rer.expectedDepartureTime}
-                        </div>`
-                    ).join("");
+                    nextRersData = data; // Met à jour les données globales
+                    updateTimeRemaining(); // Met à jour l'affichage
                 });
         }
 
-        setInterval(fetchNextRers, 3000); // Met à jour toutes les minutes
-        window.onload = fetchNextRers;
+        // Met à jour l'heure actuelle toutes les secondes
+        setInterval(updateCurrentTime, 1000);
+        // Met à jour le temps restant toutes les secondes
+        setInterval(updateTimeRemaining, 1000);
+        
+        // Rafraîchit les données de l'API toutes les 10 secondes
+        setInterval(fetchNextRers, requestInterval);
+
+        // Charge les données au démarrage
+        window.onload = () => {
+            updateCurrentTime();
+            fetchNextRers();
+        };
     </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-    <div class="header">
-        <img src="{{ url_for('static', filename='Logo RERA.png') }}" alt="Logo RER A">
-        <h1>Direction Paris</h1>
-    </div>
-    <div class="redline"></div>
 
-    <div id="rer-list">
-        <!-- Les prochains RER seront insérés ici par JavaScript -->
+<body style="display: flex; justify-content: center;">
+    <div class="vertical-screen">
+        <div class="header">
+            <!-- <img src="{{ url_for('static', filename='Logo RERA.png') }}" alt="Logo RER A" width="180"> -->
+            <h1>Paris</h1>
+            <div class="hour-rectangle">
+                <span id="current-time"></span>
+            </div>
+            <h1>St-Ger</h1>
+        </div>
+
+        <div class="horizontal-red-line"></div>
+
+        <div class="body">
+            <div class="column" id="rer-list">
+            </div>
+            <div class="vertical-red-line"></div>
+            <div class="column">
+                <h2>Saint-Germain</h2>
+            </div>
+
+        </div>
+
+        <div class="horizontal-red-line"></div>
+
+        <footer class="footer">
+            <p>Prochains RER mis à jour toutes les 10 secondes</p>
+
+        </footer>
     </div>
-    <!-- <button class="button">Clique-moi</button> -->
 </body>
+
 </html>

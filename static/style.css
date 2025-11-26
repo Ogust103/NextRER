@@ -6,35 +6,89 @@ body {
     padding: 0px;
 }
 
+.vertical-screen {
+    height: 100vh;
+    width: calc(58vh);
+    border: black 1px solid;
+    display: flex;
+    flex-direction: column;
+}
+
 .header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding-left: 10px;
+    padding: 0px 25px;
 }
 
-.header
-
-h1 {
+.header h1 {
     color: #352A94;
-    margin-left: 30px;
-    font-size: 80px;
+    font-size: 50px;
+    margin: 0;
 }
 
-.redline {
+.hour-rectangle {
+    width: 250px;
+    height: 80px;
+    background-color: black;
+    color: rgb(255, 208, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    border-radius: 0px 0px 30px 30px;
+    margin-bottom: 10px;
+}
+
+.horizontal-red-line {
     width: 100%;
     height: 4px;
     background-color: red;
 }
 
-.button {
-    background-color: #0078d7;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
+.body {
+    display: flex;
+    width: 100%;
+    height: 100%;
 }
 
-.button:hover {
-    background-color: #005a9e;
+.column {
+    flex: 1;
+}
+
+.vertical-red-line {
+    width: 2px;
+    height: 100%;
+    background-color: red;
+}
+
+.cell {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: #4D4D4D 1px solid;
+}
+
+.name-rectangle {
+    background: #4D4D4D;
+    height: 50px;
+    width: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+}
+
+.time-rectangle {
+    background: black;
+    height: 100px;
+    width: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(255, 208, 0);
+    font-size: 48px;
 }
