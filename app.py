@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import requests
 
 class NextRer:
@@ -45,7 +45,7 @@ app = Flask(__name__)
 
 @app.route("/api/next_rers")
 def get_next_rers():
-    station_id = "473922"
+    station_id = request.args.get('station_id', type=int)
     api_key = "TBvQ8qqqyjExp6GFdR9IBaONxbLUL8K0"
     next_rers = fetch_next_rers(station_id, api_key)
 

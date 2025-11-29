@@ -4,8 +4,10 @@
 <head>
     <title>Prochains RER</title>
     <script>
-        let nextRersData = []; // Variable globale pour stocker les données
+        let nextEastRersData = []; // Variable globale pour stocker les rer allant vers Paris
+        let nextWestRersData = []; // Variable globale pour stocker les rer allant vers saint-Germain
         let requestInterval = 10000;
+        let lastFetchTime = null;
 
         function updateCurrentTime() {
             const now = new Date();
@@ -13,6 +15,10 @@
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
             document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
+            if (lastFetchTime) {
+                const elapsedSeconds = Math.floor((Date.now() - lastFetchTime) / 1000);
+                document.getElementById('lastFetchTime').innerHTML = `Dernière mise à jour : il y a <strong>${elapsedSeconds} secondes</strong>`;
+            }
         }
 
         // Fonction pour formater le temps restant en "X min Y sec"
@@ -22,13 +28,13 @@
             const diffMs = Math.max(0, departure - now);
             const diffMinutes = Math.floor(diffMs / 60000);
             const diffSeconds = Math.floor((diffMs % 60000) / 1000);
-            return `${diffMinutes}:${diffSeconds}`;
+            return `${String(diffMinutes).padStart(2, '0')}:${String(diffSeconds).padStart(2, '0')}`;
         }
 
         // Fonction pour mettre à jour l'affichage du temps restant
-        function updateTimeRemaining() {
+        function updateTimeRemaining(nextRersData, columnId) {
             const now = new Date();
-            const list = document.getElementById('rer-list');
+            const list = document.getElementById(columnId);
             firstRer = nextRersData[0];
             // console.log(firstRer.vehicleJourneyName, "Arrival :", firstRer.expectedArrivalTime, now.toISOString(), firstRer.expectedArrivalTime > now.toISOString());
             // console.log(firstRer.vehicleJourneyName, "Departure :", firstRer.expectedDepartureTime, now.toISOString(), firstRer.expectedDepartureTime > now.toISOString());
@@ -46,10 +52,16 @@
                         </div>
                     `;
                 } else if (rer.expectedDepartureTime > now.toISOString()) {
-                    return `<div>
-                    <strong>${rer.vehicleJourneyName}</strong> vers ${rer.destinationName}<br>
-                    A quai<br>
-                </div>`;
+                    return `
+                        <div class="cell">
+                            <div class="name-rectangle">
+                                <span>${rer.vehicleJourneyName}</span>
+                            </div>
+                            <div class="time-rectangle">
+                                <span>à quai</span>
+                            </div>
+                        </div>
+                    `;
                 }
                 else {
                     return ""; // Ne rien afficher si le RER est déjà parti
@@ -58,28 +70,36 @@
         }
 
         // Fonction pour récupérer les données de l'API
-        function fetchNextRers() {
+        function fetchNextRers(eastStationId, westStationId) {
             console.log("Fetching next RERs...");
-            fetch('/api/next_rers')
+            fetch(`/api/next_rers?station_id=${eastStationId}`)
                 .then(response => response.json())
                 .then(data => {
-                    nextRersData = data; // Met à jour les données globales
-                    updateTimeRemaining(); // Met à jour l'affichage
+                    nextEastRersData = data; // Met à jour les données globales
+                    updateTimeRemaining(nextEastRersData, 'east-rer-list'); // Met à jour l'affichage
                 });
+            fetch(`/api/next_rers?station_id=${westStationId}`)
+                .then(response => response.json())
+                .then(data => {
+                    nextWestRersData = data; // Met à jour les données globales
+                    updateTimeRemaining(nextWestRersData, 'west-rer-list'); // Met à jour l'affichage
+                });
+            lastFetchTime = Date.now();
         }
 
         // Met à jour l'heure actuelle toutes les secondes
         setInterval(updateCurrentTime, 1000);
         // Met à jour le temps restant toutes les secondes
-        setInterval(updateTimeRemaining, 1000);
+        setInterval(() => updateTimeRemaining(nextEastRersData, 'east-rer-list'), 1000);
+        setInterval(() => updateTimeRemaining(nextWestRersData, 'west-rer-list'), 1000);
         
-        // Rafraîchit les données de l'API toutes les 10 secondes
-        setInterval(fetchNextRers, requestInterval);
+        // Rafraîchit les données de l'API toutes les 10 secondes        
+        setInterval(() => fetchNextRers('473964', '473965'), requestInterval);
 
         // Charge les données au démarrage
         window.onload = () => {
             updateCurrentTime();
-            fetchNextRers();
+            fetchNextRers('473964', '473965');
         };
     </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -88,7 +108,6 @@
 <body style="display: flex; justify-content: center;">
     <div class="vertical-screen">
         <div class="header">
-            <!-- <img src="{{ url_for('static', filename='Logo RERA.png') }}" alt="Logo RER A" width="180"> -->
             <h1>Paris</h1>
             <div class="hour-rectangle">
                 <span id="current-time"></span>
@@ -99,11 +118,10 @@
         <div class="horizontal-red-line"></div>
 
         <div class="body">
-            <div class="column" id="rer-list">
+            <div class="column" id="east-rer-list">
             </div>
             <div class="vertical-red-line"></div>
-            <div class="column">
-                <h2>Saint-Germain</h2>
+            <div class="column" id="west-rer-list">
             </div>
 
         </div>
@@ -111,7 +129,8 @@
         <div class="horizontal-red-line"></div>
 
         <footer class="footer">
-            <p>Prochains RER mis à jour toutes les 10 secondes</p>
+            <p id="lastFetchTime">Prochains RER mis à jour toutes les 10 secondes</p>
+            <img src="{{ url_for('static', filename='Logo RERA.png') }}" alt="Logo RER A" width="50">
 
         </footer>
     </div>

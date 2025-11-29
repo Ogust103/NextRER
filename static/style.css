@@ -25,6 +25,8 @@ body {
     color: #352A94;
     font-size: 50px;
     margin: 0;
+    width: 150px;
+    text-align: center;
 }
 
 .hour-rectangle {
@@ -42,7 +44,7 @@ body {
 
 .horizontal-red-line {
     width: 100%;
-    height: 4px;
+    height: 10px;
     background-color: red;
 }
 
@@ -50,16 +52,23 @@ body {
     display: flex;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 .column {
     flex: 1;
+    height: 100%;
+    overflow-y: auto;
 }
 
 .vertical-red-line {
     width: 2px;
     height: 100%;
     background-color: red;
+}
+
+.column::-webkit-scrollbar {
+    display: none;
 }
 
 .cell {
@@ -91,4 +100,10 @@ body {
     justify-content: center;
     color: rgb(255, 208, 0);
     font-size: 48px;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
