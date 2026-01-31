@@ -1,8 +1,14 @@
 from flask import Flask, render_template, jsonify, request
 import requests
+from dotenv import load_dotenv
+import os
+from config import STATION_ID, API_URL, PLATFORM_DIRECTIONS
+
+# Charger les variables d'environnement depuis .env
+load_dotenv()
 
 class NextRer:
-    def __init__(self, destinationName, vehicleJourneyName, vehicleAtStop, expectedArrivalTime, expectedDepartureTime, aimedArrivalTime, aimedDepartureTime):
+    def __init__(self, destinationName, vehicleJourneyName, vehicleAtStop, expectedArrivalTime, expectedDepartureTime, aimedArrivalTime, aimedDepartureTime, platform):
         self.destinationName = destinationName
         self.vehicleJourneyName = vehicleJourneyName
         self.vehicleAtStop = vehicleAtStop
@@ -10,13 +16,14 @@ class NextRer:
         self.expectedDepartureTime = expectedDepartureTime
         self.aimedArrivalTime = aimedArrivalTime
         self.aimedDepartureTime = aimedDepartureTime
+        self.platform = platform
 
     def __repr__(self):
         return f"NextRer(destinationName={self.destinationName}, vehicleJourneyName={self.vehicleJourneyName}, vehicleAtStop={self.vehicleAtStop}, expectedArrivalTime={self.expectedArrivalTime}, expectedDepartureTime={self.expectedDepartureTime}, aimedArrivalTime={self.aimedArrivalTime}, aimedDepartureTime={self.aimedDepartureTime})"
         
-def fetch_next_rers(station_id="473964", api_key="TBvQ8qqqyjExp6GFdR9IBaONxbLUL8K0"):
-    url = f"https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=STIF:StopPoint:Q:{station_id}:"
-    headers = {"apikey": api_key}
+def fetch_next_rers():    
+    url = f"{API_URL}?MonitoringRef=STIF:StopArea:SP:{STATION_ID}:"
+    headers = {"apikey": os.getenv("API_KEY")}
     response = requests.get(url, headers=headers)
     data = response.json()
     
@@ -33,29 +40,26 @@ def fetch_next_rers(station_id="473964", api_key="TBvQ8qqqyjExp6GFdR9IBaONxbLUL8
             expectedArrivalTime=rerMonitored['ExpectedArrivalTime'],
             expectedDepartureTime=rerMonitored['ExpectedDepartureTime'],
             aimedArrivalTime=rerMonitored['AimedArrivalTime'],
-            aimedDepartureTime=rerMonitored['AimedDepartureTime']
+            aimedDepartureTime=rerMonitored['AimedDepartureTime'],
+            platform=rerMonitored['DeparturePlatformName']['value'],
         )
         next_rers.append(next_rer)
     
     return next_rers
 
 
-
 app = Flask(__name__)
 
 @app.route("/api/next_rers")
 def get_next_rers():
-    station_id = request.args.get('station_id', type=int)
-    api_key = "TBvQ8qqqyjExp6GFdR9IBaONxbLUL8K0"
-    next_rers = fetch_next_rers(station_id, api_key)
+    next_rers = fetch_next_rers()
 
     next_rers_dict = [rer.__dict__ for rer in next_rers]
     return jsonify(next_rers_dict)
 
 @app.route("/")
 def home():
-    nextRers = fetch_next_rers()
-    return render_template("index.html", nextRers=nextRers)
+    return render_template("index.html", platform_directions=PLATFORM_DIRECTIONS)
 
 if __name__ == "__main__":
     app.run(debug=True)
