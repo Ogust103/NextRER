@@ -61,6 +61,8 @@ NextRER récupère les horaires en temps réel des trains RER depuis l'API Île-
 
 ```bash
 py app.py
+ou
+flask --app app.py --debug run
 ```
 
 L'application sera accessible sur `http://localhost:5000`
