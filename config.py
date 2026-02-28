@@ -1,7 +1,10 @@
 # Configuration pour NextRER
 
 # URL de l'API Île-de-France Mobilités
-API_URL = "https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring"
+RATP_API_URL = "https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring"
+# URL de l'API Open-Meteo
+OPEN_METEO_API_URL = "https://api.open-meteo.com/v1/forecast"
+
 
 # Station
 STATION_ID = "53783" # Chatou-Croissy
@@ -25,4 +28,10 @@ DIRECTIONS = {
 STATION_NAMES = {
     "53783": "Chatou-Croissy",
     # Ajouter d'autres stations ici
+}
+
+# Info météo
+WEATHER_INFO = {
+    "latitude": 48.8898,
+    "longitude": 2.1586,
 }

@@ -12,6 +12,8 @@
         let lastFetchTime = null;
         let lastProgress = 0;
 
+        let weatherData = {}; // Variable globale pour stocker les données météo
+
         function updateCurrentTime() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -19,6 +21,9 @@
             const seconds = String(now.getSeconds()).padStart(2, '0');
             document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
             
+            const date = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            document.getElementById('current-date').textContent = date.charAt(0).toUpperCase() + date.slice(1); // Met la première lettre en majuscule
+
             // Mise à jour du spinner
             /* if (lastFetchTime) {
                 const elapsedMs = Date.now() - lastFetchTime;
@@ -86,6 +91,7 @@
             list.innerHTML = nextRersData.map((rer) => {
                 if (rer.expectedArrivalTime > now.toISOString() || rer.expectedDepartureTime > now.toISOString()) {
                     const minutesSeconds = getTimeRemaining(rer.expectedDepartureTime);
+                    const minutes3lettres = minutesSeconds.minutes.length > 2;
                     const isArriving = rer.expectedArrivalTime > now.toISOString();
                     
                     return `
@@ -98,7 +104,7 @@
                             </div>
                             <div class="cell-right">
                                 <div class="time-container">
-                                    <div ${isArriving ? 'class="minutes"' : 'class="on-platform"'} >
+                                    <div ${isArriving ? 'class="minutes"' : 'class="on-platform"'} ${minutes3lettres ? 'style="font-size: 52px;"' : ''}>
                                         <span>${isArriving ? minutesSeconds.minutes : 'à quai'}</span>
                                     </div>
                                     ${isArriving ? `<span class="seconds"> : ${minutesSeconds.seconds}</span>` : ''}
@@ -116,18 +122,300 @@
             }).join("");
         }
 
+        function updateWeatherDisplay(weatherData) {
+            const actualTime = new Date();
+            const weatherScreen = document.getElementById('weather-screen');
+            const currentWeather = document.getElementById('current-weather');
+            const hourlyWeather = document.getElementById('hourly-scrollbar');
+
+            // Affichage de la météo actuelle
+            if (weatherData.current) {
+                weatherScreen.style.backgroundImage = `url('static/weather_images/${getWeatherImage(weatherData.current.weather_code, weatherData.current.is_day)}')`;
+                /*currentWeather.innerHTML = `
+                    <h2>Météo actuelle</h2>
+                    <p>Température : ${weatherData.current.temperature}°C</p>
+                    <p>Précipitations : ${weatherData.current.precipitation} mm</p>
+                    <p>Couverture nuageuse : ${weatherData.current.cloud_cover}%</p>
+                    <p>Pluie : ${weatherData.current.rain} mm</p>
+                    <p>Averses : ${weatherData.current.showers} mm</p>
+                    <p>Chute de neige : ${weatherData.current.snowfall} cm</p>
+                `;*/
+            }
+
+            dailyWeather = weatherData.daily ? weatherData.daily[formatLocalHour(actualTime).split('T')[0]] : null;
+            if (dailyWeather) {
+                document.getElementById('temperature-min').textContent = `${dailyWeather.temperature_min}°`;
+                document.getElementById('temperature-max').textContent = `${dailyWeather.temperature_max}°`;
+                document.getElementById('sunrise-time').textContent = dailyWeather.sunrise.split('T')[1].slice(0, 5);
+                document.getElementById('sunset-time').textContent = dailyWeather.sunset.split('T')[1].slice(0, 5);
+            }
+
+            // Affichage des prévisions horaires
+            if (weatherData.hourly) {
+                for (const [time, data] of Object.entries(weatherData.hourly)) {
+                    hourlyWeather.innerHTML += `
+                        <div class="hourly-card" id="hourly-${time}">
+                            <span>${time.split('T')[1]}</span>
+                            <img src="static/weather_icons/${getWeatherIcon(data.weather_code, data.is_day)}" alt="Weather Icon" class="weather-icon" width="35">
+                            <span>${data.temperature}°C</span>
+                        </div>
+                    `;
+                }
+                const card = document.getElementById(`hourly-${formatLocalHour(actualTime)}`);
+                if (card) {
+                    hourlyWeather.scrollTo({
+                        left: card.offsetLeft - hourlyWeather.offsetLeft,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+
+        function formatLocalHour(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const h = String(date.getHours()).padStart(2, '0');
+
+            return `${y}-${m}-${d}T${h}:00`;
+        }
+
+        function getWeatherIcon(weatherCode, is_day) {
+            const isDay = is_day === 1
+
+            switch (weatherCode) {
+
+                // ☀️ Clair à nuageux
+                case 0:
+                return isDay ? "day_1.png" : "night_1.png"
+                case 1:
+                return isDay ? "day_2.png" : "night_2.png"
+                case 2:
+                return isDay ? "day_3.png" : "night_3.png"
+                case 3:
+                return "cloudy.png"
+
+                // 🌫️ Brouillard
+                case 45:
+                return "fog.png"
+                case 48:
+                return "fog.png"
+
+                // 🌧️ Bruine
+                case 51:
+                return "rain_1.png"
+                case 53:
+                return "rain_2.png"
+                case 55:
+                return "rain_3.png"
+
+                // 🧊 Grêle / grésil
+                case 56:
+                return "sleet_hail.png"
+                case 57:
+                return "sleet_hail.png"
+
+                // 🌧️ Pluie
+                case 61:
+                return "rain_1.png"
+                case 63:
+                return "rain_2.png"
+                case 65:
+                return "rain_3.png"
+
+                // 🧊 Pluie verglaçante / grésil
+                case 66:
+                return "sleet_hail.png"
+                case 67:
+                return "sleet_hail.png"
+
+                // ❄️ Neige
+                case 71:
+                return "snow_1.png"
+                case 73:
+                return "snow_2.png"
+                case 75:
+                return "snow_3.png"
+                case 77:
+                return "snow_2.png"
+
+                // 🌧️ Averses de pluie
+                case 80:
+                return isDay ? "day_rain.png" : "night_rain.png"
+                case 81:
+                return isDay ? "day_rain.png" : "night_rain.png"
+                case 82:
+                return "rain_3.png"
+
+                // 🌨️ Averses de neige
+                case 85:
+                return "snow_1.png"
+                case 86:
+                return "snow_3.png"
+
+                // ⛈️ Orages
+                case 95:
+                return isDay ? "day_storm.png" : "night_storm.png"
+                case 96:
+                return "storm.png"
+                case 99:
+                return "storm.png"
+
+                // 🔁 Fallback
+                default:
+                return isDay ? "day_1.png" : "night_1.png"
+            }
+        }
+
+        function getWeatherImage(weatherCode, is_day) {
+            const isDay = is_day === 1
+
+            switch (weatherCode) {
+
+                // ☀️ Clair à nuageux
+                case 0:
+                return isDay ? "day_1.jpg" : "night_1.jpg"
+                case 1:
+                return isDay ? "day_1.jpg" : "night_1.jpg"
+                case 2:
+                return isDay ? "day_3.jpg" : "night_3.jpg"
+                case 3:
+                return isDay ? "day_3.jpg" : "night_3.jpg"
+
+                // 🌫️ Brouillard
+                case 45:
+                return "fog.jpg"
+                case 48:
+                return "fog.jpg"
+
+                // 🌧️ Bruine
+                case 51:
+                return "rain_2.jpg"
+                case 53:
+                return "rain_2.jpg"
+                case 55:
+                return "rain_2.jpg"
+
+                // 🧊 Grêle / grésil
+                case 56:
+                return "sleet_hail.jpg"
+                case 57:
+                return "sleet_hail.jpg"
+
+                // 🌧️ Pluie
+                case 61:
+                return "rain_2.jpg"
+                case 63:
+                return "rain_2.jpg"
+                case 65:
+                return "rain_2.jpg"
+
+                // 🧊 Pluie verglaçante / grésil
+                case 66:
+                return "sleet_hail.jpg"
+                case 67:
+                return "sleet_hail.jpg"
+
+                // ❄️ Neige
+                case 71:
+                return "snow.jpg"
+                case 73:
+                return "snow.jpg"
+                case 75:
+                return "snow.jpg"
+                case 77:
+                return "snow.jpg"
+
+                // 🌧️ Averses de pluie
+                case 80:
+                return "rain_2.jpg"
+                case 81:
+                return "rain_2.jpg"
+                case 82:
+                return "rain_2.jpg"
+
+                // 🌨️ Averses de neige
+                case 85:
+                return "snow.jpg"
+                case 86:
+                return "snow.jpg"
+
+                // ⛈️ Orages
+                case 95:
+                return "storm.jpg"
+                case 96:
+                return "storm.jpg"
+                case 99:
+                return "storm.jpg"
+
+                // 🔁 Fallback
+                default:
+                return isDay ? "day_1.jpg" : "night_1.jpg"
+            }
+        }
         // Fonction pour récupérer les données de l'API
         function fetchNextRers() {
             console.log("Fetching next RERs...");
             fetch(`/api/next_rers`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erreur API: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    console.log("Data received:", data);
-                    nextMainRersData = data.filter(rer => directions["main"].quayRef.includes(rer.quayRef) || directions["main"].directionCodes.includes(rer.destinationCode)); // Filtre les RER allant vers Paris
-                    nextSecondaryRersData = data.filter(rer => directions["secondary"].quayRef.includes(rer.quayRef) || directions["secondary"].directionCodes.includes(rer.destinationCode)); // Filtre les RER allant vers Saint-Germain-en-Laye
+                    if (!Array.isArray(data)) {
+                        console.error("Invalid data format received", data);
+                        throw new Error("Received data is not an array");
+                    }
+                    console.log("RATP data received:", data);
+                    nextMainRersData = data.filter(rer => {
+                        if (!rer) return false;
+                        return (rer.quayRef && directions["main"].quayRef.includes(rer.quayRef)) || 
+                               (rer.destinationCode && directions["main"].directionCodes.includes(rer.destinationCode));
+                    }); // Filtre les RER allant vers Paris
+                    nextSecondaryRersData = data.filter(rer => {
+                        if (!rer) return false;
+                        return (rer.quayRef && directions["secondary"].quayRef.includes(rer.quayRef)) || 
+                               (rer.destinationCode && directions["secondary"].directionCodes.includes(rer.destinationCode));
+                    }); // Filtre les RER allant vers Saint-Germain-en-Laye
                     updateTimeRemaining(nextMainRersData, 'main-rer-list'); // Met à jour l'affichage
+                    updateTimeRemaining(nextSecondaryRersData, 'secondary-rer-list');
+                })
+                .catch(error => {
+                    console.error("Error fetching RER data:", error);
+                    document.getElementById('main-rer-list').innerHTML = `<div style="color: red; padding: 20px;">Connection error: ${error.message}</div>`;
                 });
             lastFetchTime = Date.now();
+        }
+
+        function fetchWeather() {
+            console.log("Fetching weather...");
+            fetch(`/api/weather`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data || typeof data !== 'object') {
+                        console.error("Invalid weather data format", data);
+                        throw new Error("Invalid weather data format");
+                    }
+                    console.log("Weather data received:", data);
+                    weatherData = data; // Stocke les données météo dans la variable globale
+                    
+                    // Vérifie que les données contiennent au moins les champs attendus
+                    if (data.hourly && typeof data.hourly === 'object') {
+                        updateWeatherDisplay(weatherData); // Met à jour l'affichage météo
+                    } else {
+                        console.warn("Incomplete weather data structure");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching weather data:", error);
+                });
         }
 
         // Met à jour l'heure actuelle toutes les secondes
@@ -139,15 +427,22 @@
         // Rafraîchit les données de l'API toutes les 10 secondes        
         setInterval(() => fetchNextRers(), requestInterval);
 
+        // Rafraîchit les données météo toutes les 3 minutes
+        setInterval(() => fetchWeather(), 180000); 
+
         // Charge les données au démarrage
         window.onload = () => {
             updateCurrentTime();
             fetchNextRers();
+            fetchWeather();
+
+            // Affiche les noms des directions dans les en-têtes
             document.getElementById("mainDirection").textContent = directions["main"].directionNames.join(" • ");
             document.getElementById("secondaryDirection").textContent = directions["secondary"].directionNames.join(" • ");
         };
     </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -193,36 +488,32 @@
         </div>
 
         <div class="vertical-black-line"></div>
-        
-    </div>
-    <!-- <div class="vertical-screen">
-        <div class="header">
-            <h1>Paris</h1>
-            <div class="hour-rectangle">
-                <span id="current-time"></span>
+
+        <div class="weather-screen" id="weather-screen">
+            <div class="current-weather" id="current-weather">
+                <div class="current-weather-header">
+                    <span class="temperature" id="temperature-min" style="color:#1B9BD3"></span>
+                    <span class="date" id="current-date"></span>
+                    <span class="temperature" id="temperature-max" style="color:#ED1C24"></span>
+                </div>
+                <div class="current-weather-sunrise">
+                    <div class="suntime">
+                        <img src="{{ url_for('static', filename='weather_icons/sunrise.png') }}" alt="Weather Icon" width="25">
+                        <span id="sunrise-time"></span>
+                    </div>
+                    <div class="suntime">
+                        <span id="sunset-time"></span>
+                        <img src="{{ url_for('static', filename='weather_icons/sunset.png') }}" alt="Weather Icon" width="25">
+                    </div>
+                </div>
             </div>
-            <h1>St-Ger</h1>
+            <div class="hourly-weather">
+                Prévisions horaires
+                <div class="hourly-scrollbar" id="hourly-scrollbar"></div>
+            </div>
         </div>
 
-        <div class="horizontal-red-line"></div>
-
-        <div class="body">
-            <div class="column" id="main-rer-list">
-            </div>
-            <div class="vertical-red-line"></div>
-            <div class="column" id="secondary-rer-list">
-            </div>
-
-        </div>
-
-        <div class="horizontal-red-line"></div>
-
-        <footer class="footer">
-            <p id="lastFetchTime">Prochains RER mis à jour toutes les 10 secondes</p>
-            <img src="{{ url_for('static', filename='Logo RERA.png') }}" alt="Logo RER A" width="50">
-
-        </footer>
-    </div> -->
+        {# <div id="ww_8360d31da2298" v='1.3' loc='id' a='{"t":"horizontal","lang":"fr","sl_lpl":1,"ids":["wl7545"],"font":"Arial","sl_ics":"one_a","sl_sot":"celsius","cl_bkg":"image","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722","el_nme":3}'>Plus de prévisions: <a href="https://meteolongue.com/paris_meteo_25_jours/" id="ww_8360d31da2298_u" target="_blank">Météo 25 jours</a></div><script async src="https://app3.weatherwidget.org/js/?id=ww_8360d31da2298"></script> #}
 </body>
 
 </html>

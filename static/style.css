@@ -1,6 +1,6 @@
 /* static/style.css */
 body {
-    font-family: 'Trebuchet MS';
+    font-family: 'Open Sans', sans-serif;
     background-color: #ffffff;
     margin: 0;
     padding: 0px;
@@ -157,6 +157,7 @@ body {
     justify-content: center;
     color: rgb(255, 208, 0);
     font-size: 72px;
+    font-weight: bold;
 }
 
 .time-container .on-platform {
@@ -190,14 +191,14 @@ body {
 }
 
 .platform-rectangle .text {
-    font-size: 20px;
+    font-size: 18px;
     letter-spacing: 3px;
     margin-top: -3px;
     padding: 0px;
 }
 
 .platform-rectangle .number {
-    font-size: 50px;
+    font-size: 40px;
     margin-top: -10px;
     font-weight: bold;
 }
@@ -214,8 +215,108 @@ body {
     background-color: black;
 }
 
+.weather-screen {
+    width: 363px;
+    height: 100%;
+    gap: 20px;
+    background-image: url('/static/weather_images/day_1.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.current-weather {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 120px;
+    gap: 10px;
+}
+
+.current-weather-header {
+    padding-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.current-weather-header .temperature {
+    font-size: 24px;
+    font-weight: bold;
+    width: 80px;
+    text-align: center;
+}
+
+.current-weather-header .date {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+.current-weather-sunrise {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+.current-weather-sunrise .suntime {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.hourly-weather {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hourly-scrollbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 90%;
+    overflow-x: auto;
+    gap: 2px;
+}
+
+.hourly-scrollbar::-webkit-scrollbar {
+    display: auto;
+}
+
+.hourly-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    font-size: 12px;
+
+    padding: 8px 8px;
+    border-radius: 14px;
+
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
 /* Spinner styles */
-.spinner {
+/* .spinner {
     position: relative;
     width: 100px;
     height: 100px;
@@ -253,7 +354,7 @@ body {
     font-size: 32px;
     font-weight: bold;
     color: #352A94;
-}
+} */
 
 /* .footer {
     display: flex;
