@@ -276,15 +276,17 @@ NextRER/
 ├── .gitignore            # Fichiers à ignorer par Git
 ├── README.md             # Ce fichier
 ├── static/
+│   ├── Logo RERA.png   # Logo RERA
 │   ├── style.css         # Styles CSS
-│   ├── Logo RERA 1.png   # Logo RERA
-│   ├── Logo RERA 2.png   # Logo RERA alternatif
+│   ├── js/
+│   │   ├── api.js        # Appels API frontend
+│   │   ├── main.js       # Logique principale frontend
+│   │   ├── ui.js         # Rendu de l'interface
+│   │   └── utils.js      # Fonctions utilitaires frontend
 │   ├── weather_icons/    # Icônes météo
 │   └── weather_images/   # Images météo
 ├── templates/
 │   └── index.html        # Template HTML principal
-├── __pycache__/          # Cache Python (NON VERSIONNÉ)
-└── start_app.sh          # Script d'exécution Raspberry Pi
 ```
 
 ## 🔧 Configuration
