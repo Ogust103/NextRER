@@ -1,5 +1,5 @@
 import { fetchNextRers, fetchWeather } from "./api.js";
-import { updateCurrentTime, updateTimeRemaining, updateWeatherDisplay } from "./ui.js";
+import { updateCurrentTime, updateTimeRemaining, updateWeatherDisplay, resetScroll } from "./ui.js";
 
 const directions = JSON.parse(
     document.getElementById("directions-data").textContent
@@ -60,4 +60,7 @@ window.onload = () => {
     // Affiche les noms des directions dans les en-têtes
     document.getElementById("mainDirection").textContent = directions.main.directionNames.join(" • ");
     document.getElementById("secondaryDirection").textContent = directions.secondary.directionNames.join(" • ");
+
+    // Ajouter un gestionnaire de clic sur l'heure pour réinitialiser les scrolls
+    document.getElementById("current-time").addEventListener("click", resetScroll);
 };

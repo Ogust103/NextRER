@@ -109,3 +109,31 @@ export function updateWeatherDisplay(weatherData) {
         }
     }
 }
+
+export function resetScroll() {
+    const hourlyWeather = document.getElementById('hourly-scrollbar');
+    const card = document.getElementById(`hourly-${formatLocalHour(new Date())}`);
+    if (hourlyWeather && card) {
+        hourlyWeather.scrollTo({
+            left: card.offsetLeft - hourlyWeather.offsetLeft,
+            behavior: 'smooth'
+        });
+    }
+
+    const mainRerList = document.getElementById('main-rer-list');
+    if (mainRerList) {
+        console.log("Resetting main RER list scroll");
+        mainRerList.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    const secondaryRerList = document.getElementById('secondary-rer-list');
+    if (secondaryRerList) {
+        secondaryRerList.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+}
