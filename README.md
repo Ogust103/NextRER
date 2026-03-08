@@ -101,7 +101,6 @@ Pour lancer automatiquement au démarrage, créer un fichier start_app.sh :
 ```bash
 #!/bin/bash
 
-x-terminal-emulator
 ls
 cd /home/path/to/NextRER
 python3 app.py &
