@@ -229,7 +229,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 120px;
     gap: 10px;
 }
 
@@ -279,7 +278,19 @@ body {
     gap: 5px;
 }
 
+.current-weather-temperature {
+    padding: 20px;
+}
+
+.current-weather-temperature .temperature {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    width: 80px;
+}
+
 .hourly-weather {
+    color: white;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -295,7 +306,7 @@ body {
 }
 
 .hourly-scrollbar::-webkit-scrollbar {
-    display: auto;
+    display: none;
 }
 
 .hourly-card {

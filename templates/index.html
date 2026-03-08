@@ -131,15 +131,7 @@
             // Affichage de la météo actuelle
             if (weatherData.current) {
                 weatherScreen.style.backgroundImage = `url('static/weather_images/${getWeatherImage(weatherData.current.weather_code, weatherData.current.is_day)}')`;
-                /*currentWeather.innerHTML = `
-                    <h2>Météo actuelle</h2>
-                    <p>Température : ${weatherData.current.temperature}°C</p>
-                    <p>Précipitations : ${weatherData.current.precipitation} mm</p>
-                    <p>Couverture nuageuse : ${weatherData.current.cloud_cover}%</p>
-                    <p>Pluie : ${weatherData.current.rain} mm</p>
-                    <p>Averses : ${weatherData.current.showers} mm</p>
-                    <p>Chute de neige : ${weatherData.current.snowfall} cm</p>
-                `;*/
+                document.getElementById('current-temp').textContent = `${weatherData.current.temperature}°C`;
             }
 
             dailyWeather = weatherData.daily ? weatherData.daily[formatLocalHour(actualTime).split('T')[0]] : null;
@@ -505,6 +497,9 @@
                         <span id="sunset-time"></span>
                         <img src="{{ url_for('static', filename='weather_icons/sunset.png') }}" alt="Weather Icon" width="25">
                     </div>
+                </div>
+                <div class="current-weather-temperature">
+                    <span class="temperature" id="current-temp"></span>
                 </div>
             </div>
             <div class="hourly-weather">
