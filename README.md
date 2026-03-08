@@ -101,12 +101,12 @@ Pour lancer automatiquement au démarrage, créer un fichier start_app.sh :
 ```bash
 #!/bin/bash
 
-x-terminal-emulator
-ls
+fuser -k 5000/tcp 2>/dev/null
+
 cd /home/path/to/NextRER
 python3 app.py &
 sleep 10
-chromium --no-sandbox --kiosk --disable-infobars http://127.0.0.1:5000/
+chromium --no-sandbox --kiosk http://127.0.0.1:5000/
 ```
 
 Le rendre exécutable :
