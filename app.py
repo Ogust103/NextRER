@@ -72,10 +72,33 @@ def fetch_weather():
         params = {
             "latitude": WEATHER_INFO["latitude"],
             "longitude": WEATHER_INFO["longitude"],
-            "daily": ["temperature_2m_max", "temperature_2m_min", "sunrise", "sunset", "weather_code"],
-            "hourly": ["temperature_2m", "precipitation", "rain", "snowfall", "cloud_cover", "is_day", "weather_code"],
+            "daily": [
+                "temperature_2m_max",
+                "temperature_2m_min",
+                "sunrise",
+                "sunset",
+                "weather_code"
+            ],
+            "hourly": [
+                "temperature_2m",
+                # "precipitation",
+                # "rain",
+                # "snowfall",
+                # "cloud_cover",
+                "is_day",
+                "weather_code"
+            ],
             "models": "meteofrance_seamless",
-            "current": ["temperature_2m", "precipitation", "cloud_cover", "rain", "showers", "snowfall", "is_day", "weather_code"],
+            "current": [
+                "temperature_2m",
+                # "precipitation",
+                # "cloud_cover",
+                # "rain",
+                # "showers",
+                # "snowfall",
+                "is_day",
+                "weather_code"
+            ],
             "timezone": "Europe/Paris",
             "forecast_days": 3,
         }
@@ -93,11 +116,11 @@ def fetch_weather():
         try:
             meteo_prevision["current"] = {
                 "temperature": data.get('current', {}).get('temperature_2m', 0),
-                "precipitation": data.get('current', {}).get('precipitation', 0),            
-                "cloud_cover": data.get('current', {}).get('cloud_cover', 0),
-                "rain": data.get('current', {}).get('rain', 0),
-                "showers": data.get('current', {}).get('showers', 0),
-                "snowfall": data.get('current', {}).get('snowfall', 0),
+                # "precipitation": data.get('current', {}).get('precipitation', 0),            
+                # "cloud_cover": data.get('current', {}).get('cloud_cover', 0),
+                # "rain": data.get('current', {}).get('rain', 0),
+                # "showers": data.get('current', {}).get('showers', 0),
+                # "snowfall": data.get('current', {}).get('snowfall', 0),
                 "is_day": data.get('current', {}).get('is_day', 0),
                 "weather_code": data.get('current', {}).get('weather_code', 0),
             }
@@ -127,10 +150,10 @@ def fetch_weather():
                 time = hourly_times[i]
                 meteo_prevision['hourly'][time] = {
                     "temperature": data['hourly']['temperature_2m'][i],
-                    "precipitation": data['hourly']['precipitation'][i],
-                    "rain": data['hourly']['rain'][i],
-                    "snowfall": data['hourly']['snowfall'][i],
-                    "cloud_cover": data['hourly']['cloud_cover'][i],
+                    # "precipitation": data['hourly']['precipitation'][i],
+                    # "rain": data['hourly']['rain'][i],
+                    # "snowfall": data['hourly']['snowfall'][i],
+                    # "cloud_cover": data['hourly']['cloud_cover'][i],
                     "is_day": data['hourly']['is_day'][i],
                     "weather_code": data['hourly']['weather_code'][i],
                 }
