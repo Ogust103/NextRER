@@ -89,11 +89,22 @@ export function updateWeatherDisplay(weatherData) {
 
     // Affichage des prévisions horaires
     if (weatherData.hourly) {
+        const today = actualTime.toISOString().split('T')[0];
+        const daysOfWeek = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         let html ="";
         for (const [time, data] of Object.entries(weatherData.hourly)) {
+            const [date, hour] = time.split('T');
+            const isToday = date === today;
+            let dateLabel = '';
+            if (!isToday) {
+                const forecastDate = new Date(date);
+                const dayName = daysOfWeek[forecastDate.getDay()];
+                dateLabel = `${dayName} `;
+            }
+            
             html += `
                 <div class="hourly-card" id="hourly-${time}">
-                    <span>${time.split('T')[1]}</span>
+                    <span>${dateLabel}${hour}</span>
                     <img src="static/weather_icons/${getWeatherIcon(data.weather_code, data.is_day)}" alt="Weather Icon" class="weather-icon" width="35">
                     <span>${data.temperature}°C</span>
                 </div>
