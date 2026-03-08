@@ -273,10 +273,10 @@ NextRER/
 ├── .env                   # Variables d'environnement (API key) - NON VERSIONNÉ
 ├── .env.example           # Template pour .env
 ├── requirements.txt       # Dépendances Python
-├── .gitignore            # Fichiers à ignorer par Git
-├── README.md             # Ce fichier
+├── .gitignore             # Fichiers à ignorer par Git
+├── README.md              # Ce fichier
 ├── static/
-│   ├── Logo RERA.png   # Logo RERA
+│   ├── Logo RERA.png     # Logo RERA
 │   ├── style.css         # Styles CSS
 │   ├── js/
 │   │   ├── api.js        # Appels API frontend
