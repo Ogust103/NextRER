@@ -1,0 +1,389 @@
+/* static/style.css */
+
+/* =====================
+   CSS Variables
+   ===================== */
+:root {
+    /* Colors */
+    --color-brand:        #352A94;
+    --color-brand-dark:   #1e1853;
+    --color-accent:       rgb(255, 208, 0);
+    --color-red:          #ED1C24;
+    --color-blue:         #1B9BD3;
+    --color-black:        #000000;
+    --color-bg:           #ffffff;
+    --color-border:       #7a8a8e78;
+    --color-cell-right-bg:#b4e0ea78;
+
+    /* Layout — les hauteurs sont calculées depuis 100vh pour remplir l'écran.
+       La barre noire (horizontal-black-line) fait 50px fixe.
+       main-screen prend ~65% du reste, bottom-screen le reste. */
+    --black-bar-height: 50px;
+    --main-screen-height: calc((100vh - var(--black-bar-height)) * 0.65);
+    --bottom-screen-height: calc((100vh - var(--black-bar-height)) * 0.35);
+    --secondary-scale: 0.7;
+    --weather-width: 363px;
+    --divider-width: 20px;
+
+    /* Cell */
+    --cell-height: 100px;
+    --name-rect-width: 140px;
+    --name-rect-height: 35px;
+    --cell-right-width: 450px;
+    --time-box-size: 100px;
+    --platform-box-size: 60px;
+
+    /* Header */
+    --hour-rect-width: 250px;
+    --hour-rect-height: 80px;
+
+    /* Typography */
+    --font-main: 'Open Sans', sans-serif;
+}
+
+/* =====================
+   Base
+   ===================== */
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-main);
+    background-color: var(--color-bg);
+    margin: 0;
+    padding: 0;
+}
+
+/* =====================
+   Main layout
+   ===================== */
+.main-screen {
+    width: 100vw;
+    height: var(--main-screen-height);
+    display: flex;
+    flex-direction: column;
+}
+
+.bottom-screen {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    height: var(--bottom-screen-height);
+}
+
+/* Secondary screen: zoom affecte le flux du DOM (contrairement à transform: scale),
+   donc pas besoin de compenser hauteur ou largeur manuellement. */
+.secondary-screen {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    zoom: var(--secondary-scale);
+    overflow: hidden;
+}
+
+/* =====================
+   Header
+   ===================== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 25px;
+}
+
+.left-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.logo {
+    padding: 10px 0;
+}
+
+.header h1 {
+    color: var(--color-brand);
+    font-size: 40px;
+    margin: 0;
+    text-align: left;
+    width: 600px;
+}
+
+.hour-rectangle {
+    width: var(--hour-rect-width);
+    height: var(--hour-rect-height);
+    background-color: var(--color-black);
+    color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    border-radius: 0 0 30px 30px;
+    margin-bottom: 30px;
+}
+
+/* =====================
+   Separators
+   ===================== */
+.horizontal-red-line {
+    width: 100%;
+    height: 10px;
+    background-color: var(--color-red);
+}
+
+.horizontal-black-line {
+    width: 100%;
+    height: 50px;
+    background-color: var(--color-black);
+}
+
+.vertical-black-line {
+    width: var(--divider-width);
+    height: 100%;
+    background-color: var(--color-black);
+}
+
+/* =====================
+   Train list column
+   ===================== */
+.column {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.column::-webkit-scrollbar {
+    display: none;
+}
+
+/* =====================
+   Train cell
+   ===================== */
+.cell {
+    width: 100%;
+    height: var(--cell-height);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: var(--color-border) 3px solid;
+}
+
+.cell-left {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    gap: 20px;
+}
+
+.name-rectangle {
+    background: var(--color-brand);
+    height: var(--name-rect-height);
+    width: var(--name-rect-width);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+}
+
+.direction-name {
+    color: var(--color-brand-dark);
+    font-size: 55px;
+    font-weight: bold;
+    margin: 0;
+    text-align: left;
+}
+
+.cell-right {
+    width: var(--cell-right-width);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-cell-right-bg);
+}
+
+/* =====================
+   Time display
+   ===================== */
+.time-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.time-container .minutes,
+.time-container .on-platform {
+    background: var(--color-black);
+    height: var(--time-box-size);
+    width: var(--time-box-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-accent);
+    font-weight: bold;
+}
+
+.time-container .minutes {
+    font-size: 72px;
+}
+
+.time-container .on-platform {
+    font-size: 32px;
+}
+
+.time-container .seconds {
+    font-size: 32px;
+    color: var(--color-border);
+}
+
+/* =====================
+   Platform badge
+   ===================== */
+.platform-rectangle {
+    height: var(--platform-box-size);
+    width: var(--platform-box-size);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-brand);
+    border: var(--color-brand) 2px solid;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.platform-rectangle .text {
+    font-size: 18px;
+    letter-spacing: 3px;
+    margin-top: -3px;
+    padding: 0;
+}
+
+.platform-rectangle .number {
+    font-size: 40px;
+    margin-top: -10px;
+    font-weight: bold;
+}
+
+/* =====================
+   Weather panel
+   ===================== */
+.weather-screen {
+    width: var(--weather-width);
+    height: 100%;
+    background-image: url('/static/weather_images/day_1.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.current-weather {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.current-weather-header {
+    padding-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.current-weather-header .temperature {
+    font-size: 24px;
+    font-weight: bold;
+    width: 80px;
+    text-align: center;
+}
+
+.current-weather-header .date {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+.current-weather-sunrise {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+.current-weather-sunrise .suntime {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.current-weather-temperature {
+    padding: 20px;
+}
+
+.current-weather-temperature .temperature {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    width: 80px;
+}
+
+/* =====================
+   Hourly forecast
+   ===================== */
+.hourly-weather {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hourly-scrollbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 90%;
+    overflow-x: auto;
+    gap: 2px;
+    scrollbar-width: none;
+}
+
+.hourly-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hourly-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
