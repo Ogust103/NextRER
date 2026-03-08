@@ -1,6 +1,10 @@
 # Fichiers secrets
 .env
 
+# Scripts locaux (machine / déploiement)
+start_app.sh
+update_idle_time_hour.sh
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

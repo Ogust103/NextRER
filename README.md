@@ -19,7 +19,7 @@ NextRER récupère les horaires en temps réel des trains RER depuis l'API Île-
 
 ### Prérequis
 
-- Python 3.7 ou supérieur
+- Python 3.8 ou supérieur
 - pip (gestionnaire de paquets Python)
 - Une clé API Île-de-France Mobilités
 
@@ -38,14 +38,26 @@ NextRER récupère les horaires en temps réel des trains RER depuis l'API Île-
 
 3. **Configurer l'API key**
    
-   Créer un fichier `.env` à la racine du projet (vous pouvez copier `.env.example`) :
+  Créer un fichier `.env` à la racine du projet (vous pouvez copier `.env.example`) :
+
+  Sous Linux / macOS :
    ```bash
    cp .env.example .env
    ```
+
+  Sous Windows (PowerShell) :
+  ```powershell
+  Copy-Item .env.example .env
+  ```
    
    Éditer le fichier `.env` et ajouter votre clé API :
    ```
    API_KEY=votre_cle_api_ici
+   ```
+
+   Spécifier votre environnement (production/development):
+   ```
+   FLASK_ENV=production
    ```
 
 4. **Configurer votre station** (optionnel)
@@ -69,6 +81,12 @@ py app.py
 ou
 python3 app.py
 ou
+python app.py
+```
+
+Mode développement (optionnel) :
+
+```bash
 flask --app app.py --debug run
 ```
 
@@ -76,11 +94,14 @@ L'application sera accessible sur `http://localhost:5000`
 
 ### Sur Raspberry Pi
 
+#### Lancement au démarrage (Optionnel)
+
 Pour lancer automatiquement au démarrage, créer un fichier start_app.sh :
 
 ```bash
 #!/bin/bash
 
+x-terminal-emulator
 ls
 cd /home/path/to/NextRER
 python3 app.py &
@@ -101,6 +122,62 @@ crontab -e
 ```bash
 @reboot export DISPLAY=:0 && export XAUTHORITY=/home/user/.Xauthority && /home/path/to/NextRER/start_app.sh
 ```
+
+#### Economie d'énergie (Optionnel)
+
+Il est aussi possible de gérer la mise en veille de l'écran en fonction des heures avec swayidle :
+
+Prérequis :
+- `swayidle`
+- `wlopm`
+
+Créer un fichier update_idle_time_hour.sh :
+
+```bash
+#!/bin/bash
+
+CURRENT_HOUR=$(date +%-H)
+
+ACTIVE_HOURS=(6 7 8)
+INACTIVE_HOURS=(0 1 2 3 4 5 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23)
+
+# Définit le délai en fonction de l'heure
+if [[ " ${ACTIVE_HOURS[*]} " =~ " $CURRENT_HOUR " ]]; then
+  NEW_TIMEOUT=4200
+elif [[ " ${INACTIVE_HOURS[*]} " =~ " $CURRENT_HOUR " ]]; then
+  NEW_TIMEOUT=1200
+  if pgrep -f "swayidle.*timeout $NEW_TIMEOUT" > /dev/null; then
+    exit 0
+  fi
+else
+  exit 0 
+fi
+
+# Tue le processus swayidle existant (s'il existe)
+pkill swayidle
+
+# Relance swayidle avec le nouveau délai (en secondes)
+swayidle -w timeout "$NEW_TIMEOUT" 'wlopm --off \*' resume 'wlopm --on \*' &
+
+echo "Délai avant mise en veille mis à $NEW_TIMEOUT secondes"
+```
+
+Définir les heures actives (où l'écran reste allumé en permanence), et les heures inactives où l'écran reste allumé 1200 secondes (à définir) jusqu'à action avec l'écran.
+
+Le rendre exécutable :
+```bash
+chmod +x update_idle_time_hour.sh
+```
+
+Puis créer un service systemd ou ajouter au crontab :
+```bash
+crontab -e
+```
+
+```bash
+1 * * * * export WAYLAND_DISPLAY=wayland-0 && export XDG_RUNTIME_DIR=/run/user/1000 && /home/user/Documents/NextRER/update_idle_time_hour.sh >> /home/user/cron_debug.log 2>&1
+```
+Le timeout sera ainsi actualisé à la première minute de chaque heure.
 
 ## 📡 API
 
@@ -148,20 +225,12 @@ Récupère les données météorologiques pour les coordonnées configurées (pr
 {
   "current": {
     "temperature": 12.5,
-    "precipitation": 0.2,
-    "cloud_cover": 65,
-    "rain": 0,
-    "showers": 0.2,
-    "snowfall": 0,
+    "is_day": 1,
     "weather_code": 45
   },
   "hourly": {
     "2026-02-05T15:00:00": {
       "temperature": 12.3,
-      "precipitation": 0.1,
-      "rain": 0,
-      "snowfall": 0,
-      "cloud_cover": 70,
       "is_day": 1,
       "weather_code": 3
     },
@@ -180,19 +249,11 @@ Récupère les données météorologiques pour les coordonnées configurées (pr
 
 **Champs retournés - `current` (données actuelles) :**
 - `temperature` : Température actuelle (°C)
-- `precipitation` : Précipitations actuelles (mm)
-- `cloud_cover` : Couverture nuageuse (%)
-- `rain` : Pluie (mm)
-- `showers` : Averses (mm)
-- `snowfall` : Chute de neige (cm)
+- `is_day` : Indique si c'est le jour (1) ou la nuit (0)
 - `weather_code` : Code météo WMO
 
 **Champs retournés - `hourly` (données horaires) :**
 - `temperature` : Température horaire (°C)
-- `precipitation` : Précipitations horaires (mm)
-- `rain` : Pluie horaire (mm)
-- `snowfall` : Chute de neige horaire (cm)
-- `cloud_cover` : Couverture nuageuse (%)
 - `is_day` : Indique si c'est le jour (1) ou la nuit (0)
 - `weather_code` : Code météo WMO
 

@@ -1,12 +1,19 @@
-from flask import Flask, render_template, jsonify, request
-from flask_livereload import LiveReload
+from flask import Flask, render_template, jsonify
 import requests
 from dotenv import load_dotenv
 import os
+import logging
 from config import RATP_API_URL, STATION_ID, DIRECTIONS, OPEN_METEO_API_URL, WEATHER_INFO
 
 # Charger les variables d'environnement depuis .env
 load_dotenv()
+
+# Configuration du logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 class NextRer:
     def __init__(self, destinationName, destinationCode, vehicleJourneyName, vehicleAtStop, expectedArrivalTime, expectedDepartureTime, aimedArrivalTime, aimedDepartureTime, platform, quayRef):
@@ -53,18 +60,18 @@ def fetch_next_rers():
                 )
                 next_rers.append(next_rer)
             except (KeyError, TypeError, IndexError) as e:
-                print(f"Error processing RER: {e}")
+                logger.error(f"Error processing RER: {e}")
                 continue
         
         return next_rers
     except requests.exceptions.Timeout:
-        print("Timeout connecting to RATP API")
+        logger.error("Timeout connecting to RATP API")
         return []
     except requests.exceptions.RequestException as e:
-        print(f"RATP API request error: {e}")
+        logger.error(f"RATP API request error: {e}")
         return []
     except (KeyError, TypeError, ValueError) as e:
-        print(f"Error processing RATP data: {e}")
+        logger.error(f"Error processing RATP data: {e}")
         return []
 
 def fetch_weather():
@@ -81,21 +88,12 @@ def fetch_weather():
             ],
             "hourly": [
                 "temperature_2m",
-                # "precipitation",
-                # "rain",
-                # "snowfall",
-                # "cloud_cover",
                 "is_day",
                 "weather_code"
             ],
             "models": "meteofrance_seamless",
             "current": [
                 "temperature_2m",
-                # "precipitation",
-                # "cloud_cover",
-                # "rain",
-                # "showers",
-                # "snowfall",
                 "is_day",
                 "weather_code"
             ],
@@ -116,16 +114,11 @@ def fetch_weather():
         try:
             meteo_prevision["current"] = {
                 "temperature": data.get('current', {}).get('temperature_2m', 0),
-                # "precipitation": data.get('current', {}).get('precipitation', 0),            
-                # "cloud_cover": data.get('current', {}).get('cloud_cover', 0),
-                # "rain": data.get('current', {}).get('rain', 0),
-                # "showers": data.get('current', {}).get('showers', 0),
-                # "snowfall": data.get('current', {}).get('snowfall', 0),
                 "is_day": data.get('current', {}).get('is_day', 0),
                 "weather_code": data.get('current', {}).get('weather_code', 0),
             }
         except (KeyError, TypeError):
-            print("Error processing current weather data")
+            logger.error("Error processing current weather data")
             meteo_prevision["current"] = {}
 
         # Traitement des données quotidiennes
@@ -141,7 +134,7 @@ def fetch_weather():
                     "weather_code": data['daily']['weather_code'][i],
                 }
         except (KeyError, TypeError, IndexError) as e:
-            print(f"Error processing daily weather data: {e}")
+            logger.error(f"Error processing daily weather data: {e}")
 
         # Traitement des données horaires
         try:
@@ -150,30 +143,29 @@ def fetch_weather():
                 time = hourly_times[i]
                 meteo_prevision['hourly'][time] = {
                     "temperature": data['hourly']['temperature_2m'][i],
-                    # "precipitation": data['hourly']['precipitation'][i],
-                    # "rain": data['hourly']['rain'][i],
-                    # "snowfall": data['hourly']['snowfall'][i],
-                    # "cloud_cover": data['hourly']['cloud_cover'][i],
                     "is_day": data['hourly']['is_day'][i],
                     "weather_code": data['hourly']['weather_code'][i],
                 }
         except (KeyError, TypeError, IndexError) as e:
-            print(f"Error processing hourly weather data: {e}")
+            logger.error(f"Error processing hourly weather data: {e}")
         
         return meteo_prevision
     except requests.exceptions.Timeout:
-        print("Timeout connecting to Open-Meteo API")
+        logger.error("Timeout connecting to Open-Meteo API")
         return {"current": {}, "daily": {}, "hourly": {}}
     except requests.exceptions.RequestException as e:
-        print(f"Open-Meteo API request error: {e}")
+        logger.error(f"Open-Meteo API request error: {e}")
         return {"current": {}, "daily": {}, "hourly": {}}
     except (KeyError, TypeError, ValueError) as e:
-        print(f"Error processing weather data: {e}")
+        logger.error(f"Error processing weather data: {e}")
         return {"current": {}, "daily": {}, "hourly": {}}
 
 app = Flask(__name__)
-app.config['DEBUG'] = True
-livereload = LiveReload(app)
+env = os.getenv("FLASK_ENV", "production")
+if env == "development":
+    app.config['DEBUG'] = True
+    from flask_livereload import LiveReload
+    livereload = LiveReload(app)
 
 @app.route("/api/next_rers")
 def get_next_rers():
@@ -182,7 +174,7 @@ def get_next_rers():
         next_rers_dict = [rer.__dict__ for rer in next_rers]
         return jsonify(next_rers_dict), 200
     except Exception as e:
-        print(f"Error fetching RER data: {e}")
+        logger.error(f"Error fetching RER data: {e}")
         return jsonify({"error": "Error fetching RER data", "details": str(e)}), 500
 
 @app.route("/api/weather")
@@ -191,7 +183,7 @@ def get_weather():
         weather = fetch_weather()
         return jsonify(weather), 200
     except Exception as e:
-        print(f"Error fetching weather data: {e}")
+        logger.error(f"Error fetching weather data: {e}")
         return jsonify({"error": "Error fetching weather data", "details": str(e)}), 500
 
 @app.route("/")
@@ -199,4 +191,4 @@ def home():
     return render_template("index.html", directions=DIRECTIONS)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
