@@ -1,22 +1,69 @@
 /* static/style.css */
-body {
-    font-family: 'Open Sans', sans-serif;
-    background-color: #ffffff;
-    margin: 0;
-    padding: 0px;
+
+/* =====================
+   CSS Variables
+   ===================== */
+:root {
+    /* Colors */
+    --color-brand:        #352A94;
+    --color-brand-dark:   #1e1853;
+    --color-accent:       rgb(255, 208, 0);
+    --color-red:          #ED1C24;
+    --color-blue:         #1B9BD3;
+    --color-black:        #000000;
+    --color-bg:           #ffffff;
+    --color-border:       #7a8a8e78;
+    --color-cell-right-bg:#b4e0ea78;
+
+    /* Layout — les hauteurs sont calculées depuis 100vh pour remplir l'écran.
+       La barre noire (horizontal-black-line) fait 50px fixe.
+       main-screen prend ~65% du reste, bottom-screen le reste. */
+    --black-bar-height: 50px;
+    --main-screen-height: calc((100vh - var(--black-bar-height)) * 0.65);
+    --bottom-screen-height: calc((100vh - var(--black-bar-height)) * 0.35);
+    --secondary-scale: 0.7;
+    --weather-width: 363px;
+    --divider-width: 20px;
+
+    /* Cell */
+    --cell-height: 100px;
+    --name-rect-width: 140px;
+    --name-rect-height: 35px;
+    --cell-right-width: 450px;
+    --time-box-size: 100px;
+    --platform-box-size: 60px;
+
+    /* Header */
+    --hour-rect-width: 250px;
+    --hour-rect-height: 80px;
+
+    /* Typography */
+    --font-main: 'Open Sans', sans-serif;
 }
 
-/* .vertical-screen {
-    height: 100vh;
-    width: calc(58vh);
-    border: black 1px solid;
-    display: flex;
-    flex-direction: column;
-} */
+/* =====================
+   Base
+   ===================== */
+html {
+    height: 100%;
+    overflow: hidden;
+}
 
+body {
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-main);
+    background-color: var(--color-bg);
+    margin: 0;
+    padding: 0;
+}
+
+/* =====================
+   Main layout
+   ===================== */
 .main-screen {
     width: 100vw;
-    height: 632px;
+    height: var(--main-screen-height);
     display: flex;
     flex-direction: column;
 }
@@ -25,24 +72,28 @@ body {
     display: flex;
     align-items: flex-start;
     width: 100%;
-    height: 342px;
+    height: var(--bottom-screen-height);
 }
 
+/* Secondary screen: zoom affecte le flux du DOM (contrairement à transform: scale),
+   donc pas besoin de compenser hauteur ou largeur manuellement. */
 .secondary-screen {
-    transform: scale(0.7);
-    transform-origin: top left;
-    width: 100vw;
-    height: calc(100% / 0.7);
+    flex: 1;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    margin-right: -384px;
+    zoom: var(--secondary-scale);
+    overflow: hidden;
 }
 
+/* =====================
+   Header
+   ===================== */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0px 25px;
+    padding: 0 25px;
 }
 
 .left-header {
@@ -52,11 +103,11 @@ body {
 }
 
 .logo {
-    padding: 10px 0px;
+    padding: 10px 0;
 }
 
 .header h1 {
-    color: #352A94;
+    color: var(--color-brand);
     font-size: 40px;
     margin: 0;
     text-align: left;
@@ -64,48 +115,63 @@ body {
 }
 
 .hour-rectangle {
-    width: 250px;
-    height: 80px;
-    background-color: black;
-    color: rgb(255, 208, 0);
+    width: var(--hour-rect-width);
+    height: var(--hour-rect-height);
+    background-color: var(--color-black);
+    color: var(--color-accent);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 50px;
-    border-radius: 0px 0px 30px 30px;
+    border-radius: 0 0 30px 30px;
     margin-bottom: 30px;
 }
 
+/* =====================
+   Separators
+   ===================== */
 .horizontal-red-line {
     width: 100%;
     height: 10px;
-    background-color: red;
+    background-color: var(--color-red);
 }
 
-/* .body {
-    display: flex;
+.horizontal-black-line {
     width: 100%;
-    height: 100%;
-    overflow: hidden;
-} */
+    height: 50px;
+    background-color: var(--color-black);
+}
 
+.vertical-black-line {
+    width: var(--divider-width);
+    height: 100%;
+    background-color: var(--color-black);
+}
+
+/* =====================
+   Train list column
+   ===================== */
 .column {
     flex: 1;
     height: 100%;
     overflow-y: auto;
+    scrollbar-width: none;
 }
 
 .column::-webkit-scrollbar {
     display: none;
 }
 
+/* =====================
+   Train cell
+   ===================== */
 .cell {
     width: 100%;
-    height: 100px;
+    height: var(--cell-height);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: #7a8a8e78 3px solid;
+    border-bottom: var(--color-border) 3px solid;
 }
 
 .cell-left {
@@ -116,9 +182,9 @@ body {
 }
 
 .name-rectangle {
-    background: #352A94;
-    height: 35px;
-    width: 140px;
+    background: var(--color-brand);
+    height: var(--name-rect-height);
+    width: var(--name-rect-width);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -127,7 +193,7 @@ body {
 }
 
 .direction-name {
-    color: #1e1853;
+    color: var(--color-brand-dark);
     font-size: 55px;
     font-weight: bold;
     margin: 0;
@@ -135,57 +201,59 @@ body {
 }
 
 .cell-right {
-    width: 450px;
+    width: var(--cell-right-width);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #b4e0ea78;
+    background: var(--color-cell-right-bg);
 }
 
+/* =====================
+   Time display
+   ===================== */
 .time-container {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.time-container .minutes {
-    background: black;
-    height: 100px;
-    width: 100px;
+.time-container .minutes,
+.time-container .on-platform {
+    background: var(--color-black);
+    height: var(--time-box-size);
+    width: var(--time-box-size);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgb(255, 208, 0);
-    font-size: 72px;
+    color: var(--color-accent);
     font-weight: bold;
 }
 
+.time-container .minutes {
+    font-size: 72px;
+}
+
 .time-container .on-platform {
-    background: black;
-    height: 100px;
-    width: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgb(255, 208, 0);
     font-size: 32px;
 }
 
 .time-container .seconds {
     font-size: 32px;
-    color: #7a8a8e78;
+    color: var(--color-border);
 }
 
+/* =====================
+   Platform badge
+   ===================== */
 .platform-rectangle {
-    height: 60px;
-    width: 60px;
+    height: var(--platform-box-size);
+    width: var(--platform-box-size);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    gap: -500px;
-    color: #352A94;
-    border: #352A94 2px solid;
+    color: var(--color-brand);
+    border: var(--color-brand) 2px solid;
     border-radius: 10px;
     margin-right: 10px;
 }
@@ -194,7 +262,7 @@ body {
     font-size: 18px;
     letter-spacing: 3px;
     margin-top: -3px;
-    padding: 0px;
+    padding: 0;
 }
 
 .platform-rectangle .number {
@@ -203,26 +271,19 @@ body {
     font-weight: bold;
 }
 
-.horizontal-black-line {
-    width: 100%;
-    height: 50px;
-    background-color: black;
-}
-
-.vertical-black-line {
-    width: 20px;
-    height: 100%;
-    background-color: black;
-}
-
+/* =====================
+   Weather panel
+   ===================== */
 .weather-screen {
-    width: 363px;
+    width: var(--weather-width);
     height: 100%;
-    gap: 20px;
     background-image: url('/static/weather_images/day_1.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .current-weather {
@@ -289,6 +350,9 @@ body {
     width: 80px;
 }
 
+/* =====================
+   Hourly forecast
+   ===================== */
 .hourly-weather {
     color: white;
     display: flex;
@@ -303,6 +367,7 @@ body {
     width: 90%;
     overflow-x: auto;
     gap: 2px;
+    scrollbar-width: none;
 }
 
 .hourly-scrollbar::-webkit-scrollbar {
@@ -315,60 +380,10 @@ body {
     align-items: center;
     color: white;
     font-size: 12px;
-
-    padding: 8px 8px;
+    padding: 8px;
     border-radius: 14px;
-
     background: rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
-
-/* Spinner styles */
-/* .spinner {
-    position: relative;
-    width: 100px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.spinner svg {
-    transform: rotate(-90deg);
-}
-
-.spinner-bg {
-    fill: none;
-    stroke: #e0e0e0;
-    stroke-width: 8;
-}
-
-.spinner-progress {
-    fill: none;
-    stroke: #352A94;
-    stroke-width: 8;
-    stroke-linecap: round;
-    stroke-dasharray: 251.33;
-    stroke-dashoffset: 251.33;
-    transition: stroke-dashoffset 1s linear;
-}
-
-.spinner-progress.no-transition {
-    transition: none;
-}
-
-.spinner-text {
-    position: absolute;
-    font-size: 32px;
-    font-weight: bold;
-    color: #352A94;
-} */
-
-/* .footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-} */
