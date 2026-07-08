@@ -31,7 +31,8 @@
     --name-rect-height: 35px;
     --cell-right-width: 450px;
     --time-box-size: 100px;
-    --platform-box-size: 60px;
+    --platform-box-width: 90px;
+    --platform-box-height: 60px;
 
     /* Header */
     --hour-rect-width: 250px;
@@ -241,35 +242,26 @@ body {
 
 .time-container .seconds {
     font-size: 32px;
-    color: var(--color-border);
+    color: var(--color-brand);
 }
 
 /* =====================
    Platform badge
    ===================== */
 .platform-rectangle {
-    height: var(--platform-box-size);
-    width: var(--platform-box-size);
+    height: var(--platform-box-height);
+    width: var(--platform-box-width);
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     color: var(--color-brand);
     border: var(--color-brand) 2px solid;
     border-radius: 10px;
     margin-right: 10px;
 }
 
-.platform-rectangle .text {
-    font-size: 18px;
-    letter-spacing: 3px;
-    margin-top: -3px;
-    padding: 0;
-}
-
 .platform-rectangle .number {
-    font-size: 40px;
-    margin-top: -10px;
+    font-size: 26px;
     font-weight: bold;
 }
 
@@ -380,12 +372,16 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 4px;
     color: white;
-    font-size: 12px;
-    padding: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 10px 8px;
     border-radius: 14px;
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }

@@ -58,8 +58,7 @@ export function updateTimeRemaining(nextRersData, columnId) {
                     </div>
 
                     <div class="platform-rectangle">
-                        <span class="text">quai</span>
-                        <span class="number">${rer.platform !== "unknown" ? rer.platform : "-"}</span>
+                        <span class="number">${arrival.getHours().toString().padStart(2, '0')}:${arrival.getMinutes().toString().padStart(2, '0')}</span>
                     </div>
                 </div>
             </div>
